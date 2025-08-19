@@ -1,5 +1,5 @@
 use std::{fmt::Debug, marker::PhantomData, str::FromStr};
-use masking::PeekInterface;
+
 use api_models::payments::{
     Address, ConnectorMandateReferenceId, CustomerDetails, CustomerDetailsResponse, FrmMessage,
     MandateIds, RequestSurchargeDetails,
@@ -25,7 +25,7 @@ use hyperswitch_domain_models::{payments::payment_intent::CustomerData, router_r
 use hyperswitch_interfaces::api::ConnectorSpecifications;
 #[cfg(feature = "v2")]
 use masking::PeekInterface;
-use masking::{ExposeInterface, Maskable, Secret};
+use masking::{ExposeInterface, Maskable, PeekInterface, Secret};
 use router_env::{instrument, tracing};
 
 use super::{flows::Feature, types::AuthenticationData, OperationSessionGetters, PaymentData};
@@ -1264,7 +1264,9 @@ where
     let l2_l3_data = state.conf.l2_l3_data_config.enabled.then(|| {
         let shipping_address = unified_address.get_shipping();
         let billing_address = unified_address.get_payment_billing();
-        let merchant_details = merchant_context.get_merchant_account().get_merchant_details();
+        let merchant_details = merchant_context
+            .get_merchant_account()
+            .get_merchant_details();
         let merchant_tax_registration_id = merchant_details.as_ref().and_then(|details| {
             details
                 .get_inner()
